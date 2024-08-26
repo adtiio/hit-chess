@@ -7,7 +7,7 @@ The backend implements game logic and move validation, while the frontend provid
 ![Screenshot](Screenshot%202024-08-26%20105011.png)
 
 
-   [Watch the screen recording](Screen%20Recording%202024-08-26%20110217.mp4)
+   [Watch the screen recording](Screen%20Recording%202024-08-26%20110217(1).mp4)
 
 ## Features
 
