@@ -4,7 +4,10 @@
 
 This chess application is a multiplayer game built using Spring Boot and WebSocket. The app features a 5x5 game board with turn-based gameplay and real-time synchronization between clients. 
 The backend implements game logic and move validation, while the frontend provides an interactive web interface.
-[![Watch the screen recording](Screenshot%202024-08-26%20105011.png)](Screen%20Recording%202024-08-26%20110217.mp4)
+![Screenshot](Screenshot%202024-08-26%20105011.png)
+
+
+   [Watch the screen recording](Screen%20Recording%202024-08-26%20110217.mp4)
 
 ## Features
 
