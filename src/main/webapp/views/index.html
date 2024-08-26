@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIT CHESS</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0b16;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        #title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #6c5ce7;
+            margin-bottom: 20px;
+        }
+
+        #chess-board {
+            display: grid;
+            grid-template-columns: repeat(5, 80px);
+            grid-template-rows: repeat(5, 80px);
+            gap: 4px;
+            position: relative;
+            border: 4px solid #18122b;
+            border-radius: 12px;
+            background-color: #18122b;
+            margin-bottom: 20px;
+        }
+
+        .square {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .square.light {
+            background-color: #3d2c64;
+        }
+
+        .square.dark {
+            background-color: #261946;
+        }
+
+        .square:hover {
+            transform: scale(1.1);
+            z-index: 1;
+            box-shadow: 0 0 10px #6c5ce7;
+        }
+
+        .square.selected {
+            box-shadow: 0 0 15px 8px rgba(108, 92, 231, 0.8);
+        }
+
+        #reset-button {
+            margin-top: 10px;
+            padding: 12px 24px;
+            background-color: #341f97;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        #reset-button:hover {
+            background-color: #5f27cd;
+        }
+
+        #instructions {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            line-height: 1.5;
+            padding: 10px;
+            background-color: #1b1b2f;
+            border-radius: 8px;
+            width: 80%;
+        }
+
+        @media (max-width: 500px) {
+            #chess-board {
+                grid-template-columns: repeat(5, 50px);
+                grid-template-rows: repeat(5, 50px);
+            }
+
+            .square {
+                width: 50px;
+                height: 50px;
+                font-size: 30px;
+            }
+
+            #reset-button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            #title {
+                font-size: 24px;
+            }
+
+            #instructions {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="title">HIT CHESS</div>
+    <div id="chess-board"></div>
+    <button id="reset-button">Reset</button>
+    <div id="instructions">
+        <strong>Piece Movement Guide</strong><br>
+        • <strong>Pawn (♖):</strong> Moves 1 step in any direction<br>
+        • <strong>Hero1 (♕):</strong> Moves 2 steps straight in any direction<br>
+        • <strong>Hero2 (♔):</strong> Moves 2 steps diagonally in any direction
+    </div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8082/chess');
+        let board = [];
+        let selectedPiece = null;
+
+        socket.onmessage = function(event) {
+            board = JSON.parse(event.data);
+            renderBoard(board);
+        };
+
+        function renderBoard(board) {
+            const chessBoard = document.getElementById('chess-board');
+            chessBoard.innerHTML = '';
+
+            const resetButton = document.getElementById('reset-button');
+            resetButton.addEventListener('click', function() {
+                socket.send(JSON.stringify({ action: 'reset' }));
+            });
+
+            for (let row = 0; row < board.length; row++) {
+                for (let col = 0; col < board[row].length; col++) {
+                    const square = document.createElement('div');
+                    square.classList.add('square', (row + col) % 2 === 0 ? 'light' : 'dark');
+                    square.dataset.row = row;
+                    square.dataset.col = col;
+
+                    const piece = board[row][col].symbol;
+                    const color = board[row][col].color;
+
+                    if (piece) {
+                        square.innerText = piece;
+                        square.style.color = color === 'B' ? 'white' : 'black';
+                    } else {
+                        square.innerText = '';
+                    }
+
+                    square.addEventListener('click', handleSquareClick);
+
+                    chessBoard.appendChild(square);
+                }
+            }
+        }
+
+        function handleSquareClick(event) {
+            const row = event.target.dataset.row;
+            const col = event.target.dataset.col;
+            const squares = document.querySelectorAll('.square');
+
+            squares.forEach(square => square.classList.remove('selected'));
+
+            if (selectedPiece) {
+                const move = {
+                    fromRow: selectedPiece.row,
+                    fromCol: selectedPiece.col,
+                    toRow: parseInt(row),
+                    toCol: parseInt(col)
+                };
+                socket.send(JSON.stringify(move));
+                selectedPiece = null;
+            } else {
+                const piece = board[parseInt(row)][parseInt(col)].symbol;
+                if (piece) {
+                    selectedPiece = { row: parseInt(row), col: parseInt(col), piece: piece };
+                    event.target.classList.add('selected');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
