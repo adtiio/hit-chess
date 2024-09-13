@@ -41,11 +41,11 @@ The project is organized into a single repository with a clear separation betwee
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/adtiio/hit-chess.git
 
 2. Navigate to the project directory:
     ```bash
-    cd <project-directory>
+    cd hit-chess
 3. Build and run the server:
     ```bash
     ./mvnw spring-boot:run
